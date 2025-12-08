@@ -1,0 +1,239 @@
+// FOOD DELIVERY APP
+BEGIN Restaurant API Client
+    
+    // INITIALIZE APP
+    FUNCTION Constructor(restaurant_url):
+        SET base_url = restaurant_url
+        SET delivery_guy = New HTTP Delivery Guy
+        SET delivery_guy.headers = {
+            "content-type": "application/json",
+            "app-version": "1.0"
+        }
+    
+    // DELIVERY FUNCTION
+    FUNCTION make_delivery(method, endpoint, data=None):
+        full_address = base_url + endpoint
+        
+        TRY:
+            // SEND REQUEST
+            IF method = "GET" THEN
+                response = delivery_guy.GET(full_address, data)
+            ELSE IF method = "POST" THEN
+                response = delivery_guy.POST(full_address, json=data)
+            
+            // CHECK RESPONSE
+            response.check_status()
+            
+            RETURN response.json()
+            
+        CATCH DELIVERY_ERROR:
+            PRINT "Delivery failed: " + error.message
+            
+            IF error.has_response THEN
+                TRY:
+                    RETURN error.response.json()
+                CATCH:
+                    RETURN {error: error.message}
+            ELSE
+                RETURN {error: error.message}
+    
+    // ==================== APP FEATURES ====================
+    
+    // CHECK RESTAURANT OPEN
+    FUNCTION check_restaurant_open():
+        result = make_delivery("GET", "/health")
+        
+        IF result.success THEN
+            PRINT "✓ Restaurant is open"
+            PRINT "   Status: " + result.data.status
+        ELSE
+            PRINT "✗ Restaurant is closed"
+        
+        RETURN result
+    
+    // BROWSE MENU
+    FUNCTION browse_menu(filters={}):
+        result = make_delivery("GET", "/menu", filters)
+        
+        IF result.success THEN
+            PRINT "Menu has " + result.count + " items:"
+            
+            FOR item IN result.items[first_3]:
+                PRINT "  - " + item.name + ": $" + item.price
+        ELSE:
+            PRINT "Could not load menu"
+        
+        RETURN result
+    
+    // VIEW SPECIFIC ITEM
+    FUNCTION view_item(item_id):
+        result = make_delivery("GET", "/menu/" + item_id)
+        
+        IF result.success THEN
+            PRINT "Item: " + result.data.name
+            PRINT "Price: $" + result.data.price
+            PRINT "Available: " + result.data.stock + " left"
+        ELSE:
+            PRINT "Item not found"
+        
+        RETURN result
+    
+    // VIEW CUSTOMERS
+    FUNCTION view_customers(limit=10, type_filter=None):
+        params = {limit: limit}
+        
+        IF type_filter THEN
+            params.type = type_filter
+        
+        result = make_delivery("GET", "/customers", params)
+        
+        IF result.success THEN
+            PRINT "Found " + length(result.data) + " customers:"
+            FOR customer IN result.data[first_2]:
+                PRINT "  - " + customer.name + " (" + customer.type + ")"
+        
+        RETURN result
+    
+    // PLACE ORDER
+    FUNCTION place_order(customer_id, items):
+        order_data = {
+            customer_id: customer_id,
+            items: items
+        }
+        
+        result = make_delivery("POST", "/orders", order_data)
+        
+        IF result.success THEN
+            PRINT "✓ Order placed successfully!"
+            PRINT "   Order ID: " + result.data.id
+            PRINT "   Total: $" + result.data.total
+            PRINT "   Status: " + result.data.status
+        ELSE:
+            PRINT "✗ Order failed: " + result.message
+        
+        RETURN result
+    
+    // CHECK ORDER STATUS
+    FUNCTION check_order(order_id):
+        result = make_delivery("GET", "/orders/" + order_id)
+        
+        IF result.success THEN
+            order = result.data
+            PRINT "Order Status: " + order.status
+            PRINT "Items ordered:"
+            
+            FOR item IN order.items:
+                PRINT "  - " + item.quantity + "x " + item.name
+        ELSE:
+            PRINT "Order not found"
+        
+        RETURN result
+    
+    // GET RESTAURANT STATS
+    FUNCTION get_restaurant_stats():
+        result = make_delivery("GET", "/stats")
+        
+        IF result.success THEN
+            stats = result.data
+            PRINT "Restaurant Statistics:"
+            PRINT "  Total customers: " + stats.total_customers
+            PRINT "  Menu items: " + stats.total_items
+            PRINT "  Orders today: " + stats.today_orders
+            PRINT "  Inventory value: $" + stats.inventory_value
+        
+        RETURN result
+    
+    // ORDER SAMPLE ITEMS (FOR TESTING)
+    FUNCTION order_samples(item_type, count=5):
+        params = {
+            type: item_type,
+            count: count
+        }
+        
+        result = make_delivery("GET", "/samples", params)
+        
+        IF result.success THEN
+            PRINT "Generated " + count + " sample " + item_type + ":"
+            FOR sample IN result.data[first_2]:
+                IF item_type = "customers" THEN
+                    PRINT "  - " + sample.name
+                ELSE IF item_type = "menu_items" THEN
+                    PRINT "  - " + sample.name + " ($" + sample.price + ")"
+        
+        RETURN result
+    
+    // TEST ALL FEATURES
+    FUNCTION run_full_test():
+        PRINT "=" * 40
+        PRINT "TESTING RESTAURANT APP"
+        PRINT "=" * 40
+        
+        // 1. CHECK RESTAURANT
+        PRINT "\n1. Checking if restaurant is open..."
+        check_restaurant_open()
+        
+        // 2. BROWSE MENU
+        PRINT "\n2. Browsing menu..."
+        browse_menu({in_stock: true})
+        
+        // 3. VIEW SOME CUSTOMERS
+        PRINT "\n3. Checking customer list..."
+        view_customers(limit=3)
+        
+        // 4. GENERATE SAMPLES
+        PRINT "\n4. Getting sample menu items..."
+        order_samples("menu_items", 2)
+        
+        // 5. GET STATS
+        PRINT "\n5. Restaurant statistics..."
+        get_restaurant_stats()
+        
+        PRINT "\n" + "=" * 40
+        PRINT "TEST COMPLETE"
+        PRINT "=" * 40
+    
+    // EXAMPLE ORDER
+    FUNCTION example_order():
+        PRINT "\nEXAMPLE ORDER SCENARIO:"
+        PRINT "-" * 30
+        
+        // CREATE TEST CUSTOMER
+        PRINT "\nStep 1: Register new customer"
+        new_customer = {
+            name: "John Doe",
+            email: "john@test.com",
+            type: "Regular"
+        }
+        
+        // CREATE ORDER
+        PRINT "\nStep 2: Place order"
+        order_items = [
+            {id: "item1", quantity: 1},  // Pizza
+            {id: "item2", quantity: 2}   // Burgers
+        ]
+        
+        // Note: Would need actual customer_id
+        // place_order("cust123", order_items)
+        
+        PRINT "\n(Order would be placed here with real IDs)")
+
+END Restaurant API Client
+
+// RUN THE APP
+BEGIN Main Program
+    
+    // CREATE APP INSTANCE
+    food_app = New Restaurant API Client("http://localhost:8000")
+    
+    // RUN TESTS
+    TRY:
+        food_app.run_full_test()
+        food_app.example_order()
+        
+    CATCH CONNECTION_ERROR:
+        PRINT "Cannot connect to restaurant!"
+        PRINT "Make sure restaurant is running:"
+        PRINT "1. Start kitchen server"
+        PRINT "2. Then run this app"
+    
+END Main Program

@@ -1,0 +1,224 @@
+// MAIN RESTAURANT SYSTEM
+BEGIN Modal API Server
+
+    // CREATE RESTAURANT
+    APP = New FastAPI Restaurant
+    
+    // DEFINE MENU ITEM TYPES
+    CLASS Customer:
+        id = auto-generated
+        name = string
+        email = string
+        type = [Regular, VIP, Guest]
+        account_active = true/false
+        join_date = current_time
+    
+    CLASS MenuItem:
+        id = auto-generated
+        name = string
+        description = string
+        price = number
+        category = string
+        in_stock = true/false
+        quantity = number
+        tags = list
+    
+    CLASS Order:
+        id = auto-generated
+        customer_id = string
+        items = list of {item_id, quantity}
+        total = number
+        status = [pending, confirmed, delivered]
+        order_time = current_time
+    
+    // SET UP RESTAURANT KITCHEN
+    DATABASE = {
+        customers: [
+            {id: "cust1", name: "Alice", type: "VIP"},
+            {id: "cust2", name: "Bob", type: "Regular"}
+        ],
+        
+        menu_items: [
+            {id: "item1", name: "Pizza", price: 12.99, stock: 10},
+            {id: "item2", name: "Burger", price: 8.99, stock: 15}
+        ],
+        
+        orders: []
+    }
+    
+    // ==================== WAITER FUNCTIONS ====================
+    
+    // ENTRANCE - GREET CUSTOMER
+    FUNCTION root():
+        RETURN {
+            message: "Welcome to Digital Restaurant",
+            available_actions: {
+                view_menu: "/menu",
+                place_order: "/order",
+                check_health: "/health"
+            }
+        }
+    
+    // KITCHEN STATUS CHECK
+    FUNCTION health_check():
+        IF kitchen_working THEN
+            RETURN {
+                success: true,
+                message: "Kitchen is open",
+                status: "ready"
+            }
+        ELSE
+            RETURN error
+    
+    // SHOW MENU
+    FUNCTION get_menu_items(filters):
+        items = DATABASE.menu_items
+        
+        // APPLY FILTERS
+        IF category_given THEN
+            items = items WHERE category matches
+        IF price_min_given THEN
+            items = items WHERE price >= min_price
+        IF in_stock_only THEN
+            items = items WHERE stock > 0
+        
+        RETURN {
+            success: true,
+            count: length(items),
+            items: items
+        }
+    
+    // VIEW SPECIFIC ITEM
+    FUNCTION get_menu_item(item_id):
+        item = FIND_IN_DATABASE(item_id)
+        IF item NOT FOUND THEN
+            RETURN "Sorry, item not on menu"
+        ELSE
+            RETURN item
+    
+    // VIEW CUSTOMERS
+    FUNCTION get_customers(filters):
+        customers = DATABASE.customers
+        
+        IF type_filter THEN
+            customers = customers WHERE type matches
+        
+        RETURN customers
+    
+    // PLACE ORDER
+    FUNCTION create_order(customer_id, items_list):
+        // CHECK CUSTOMER EXISTS
+        customer = FIND_CUSTOMER(customer_id)
+        IF customer NOT FOUND THEN
+            RETURN "Customer not registered"
+        
+        total_price = 0
+        order_items = []
+        
+        // PROCESS EACH ITEM
+        FOR EACH item_request IN items_list:
+            menu_item = FIND_MENU_ITEM(item_request.id)
+            
+            IF menu_item NOT FOUND THEN
+                RETURN "Item not available"
+            
+            IF menu_item.stock < item_request.quantity THEN
+                RETURN "Not enough stock"
+            
+            // RESERVE ITEMS
+            menu_item.stock = menu_item.stock - item_request.quantity
+            IF menu_item.stock == 0 THEN
+                menu_item.in_stock = false
+            
+            // CALCULATE COST
+            item_cost = menu_item.price * item_request.quantity
+            total_price = total_price + item_cost
+            
+            // ADD TO ORDER
+            order_items.append({
+                item: menu_item.name,
+                quantity: item_request.quantity,
+                price: menu_item.price,
+                subtotal: item_cost
+            })
+        
+        // CREATE ORDER RECORD
+        new_order = {
+            id: generate_unique_id(),
+            customer: customer_id,
+            items: order_items,
+            total: total_price,
+            status: "confirmed",
+            time: current_time
+        }
+        
+        DATABASE.orders.append(new_order)
+        
+        RETURN {
+            success: true,
+            message: "Order placed successfully",
+            order: new_order
+        }
+    
+    // VIEW ORDER
+    FUNCTION get_order(order_id):
+        order = FIND_ORDER(order_id)
+        IF order NOT FOUND THEN
+            RETURN "Order not found"
+        ELSE
+            RETURN order
+    
+    // GET RESTAURANT STATS
+    FUNCTION get_statistics():
+        stats = {
+            total_customers: COUNT(DATABASE.customers),
+            active_customers: COUNT WHERE account_active = true,
+            total_items: COUNT(DATABASE.menu_items),
+            available_items: COUNT WHERE in_stock = true,
+            total_orders: COUNT(DATABASE.orders),
+            today_orders: COUNT WHERE time = today
+        }
+        RETURN stats
+    
+    // GENERATE SAMPLE DATA
+    FUNCTION generate_sample_data(type, count):
+        samples = []
+        
+        IF type = "customers" THEN
+            FOR i FROM 1 TO count:
+                sample = {
+                    name: random_name(),
+                    email: random_email(),
+                    type: random_type()
+                }
+                samples.append(sample)
+        
+        ELSE IF type = "menu_items" THEN
+            FOR i FROM 1 TO count:
+                sample = {
+                    name: random_food_name(),
+                    price: random_between(5, 50),
+                    category: random_category()
+                }
+                samples.append(sample)
+        
+        RETURN samples
+    
+    // ERROR SIMULATION
+    FUNCTION simulate_error():
+        errors = [400, 401, 403, 404, 500]
+        error_code = RANDOM_CHOICE(errors)
+        THROW ERROR(error_code, "Something went wrong")
+    
+    // ERROR HANDLER
+    FUNCTION handle_errors(error):
+        RETURN {
+            success: false,
+            message: error.message,
+            code: error.code
+        }
+    
+    // START RESTAURANT SERVICE
+    START_SERVER(port=8000)
+    
+END Modal API Server

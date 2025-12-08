@@ -1,0 +1,47 @@
+Section,Code,Analogy,What It Does
+Server Script,from fastapi import FastAPI,Getting restaurant franchise kit,Importing web framework
+Server Script,"app = FastAPI(title=""Sample Modal API"")","Opening ""Sample Modal Restaurant""",Creating API instance with title
+Server Script,from pydantic import BaseModel,Getting standardized recipe cards,Importing data validation library
+Server Script,"class UserRole(str, Enum):","Customer types: [VIP, Regular, Guest]",Creating enumeration for user roles
+Server Script,class User(BaseModel):,Customer registration form template,Defining user data structure with validation
+Server Script,id: str = Field(default_factory=...),Auto-generating customer ID,Setting up unique identifier
+Server Script,created_at: datetime = Field(...),Timestamp when customer joined,Adding creation timestamp
+Server Script,class Product(BaseModel):,Menu item specification sheet,Defining product data model
+Server Script,tags: List[str] = [],"Food labels: [spicy, vegan, gluten-free]",Adding categorization tags
+Server Script,class Order(BaseModel):,Order ticket template,Defining order data structure
+Server Script,"products: List[Dict[str, Any]]",List of items with quantities,Complex field for order items
+Server Script,class ApiResponse(BaseModel):,Standardized receipt format,Creating response template
+Server Script,"success: bool, message: str",Receipt shows ✓/✗ and message,Standard success/failure format
+Server Script,class SimulatedDatabase:,Restaurant's pantry and filing system,Creating in-memory database class
+Server Script,self.users = self._generate_sample_users(),Pre-registering regular customers,Initializing with sample data
+Server Script,self.products = self._generate_sample_products(),Stocking kitchen with sample items,Populating product database
+Server Script,self.orders = [],Empty order queue,Initializing orders list
+Server Script,db = SimulatedDatabase(),Opening restaurant for day,Creating database instance
+Server Script,def create_api_response(...):,Standard receipt printer,Helper function for responses
+Server Script,"@app.get(""/"")",Host greeting at entrance,Root endpoint
+Server Script,async def root():,"""Welcome to our restaurant!""",Async greeting function
+Server Script,"return {""message"": ""Welcome...""}",Handing out restaurant brochure,Returning welcome info
+Server Script,"@app.get(""/health"")",Kitchen health inspection,System status endpoint
+Server Script,async def health_check():,"""Is kitchen operational?""",Health check function
+Server Script,return create_api_response(...),Standard health report,Formatted health response
+Server Script,"@app.get(""/api/users"")",Customer registry desk,Users listing endpoint
+Server Script,async def get_users(...):,"""Show me VIP customers only""",Filtering users by parameters
+Server Script,users = db.users,Accessing customer database,Getting all users
+Server Script,if role: users = [...],Filtering by customer type,Applying role filter
+Server Script,if active_only: users = [...],Showing only active accounts,Filtering active users
+Server Script,users = users[:limit],Limiting to first X customers,Applying pagination
+Server Script,"@app.get(""/api/users/{user_id}"")",Specific customer lookup,Get user by ID
+Server Script,"user = next((u ...), None)",Searching customer database,Finding user by ID
+Server Script,if not user: raise HTTPException(404),"""Customer not in our system""",Handling missing user
+Server Script,"@app.post(""/api/users"")",New customer registration,Create user endpoint
+Server Script,if any(u.username == ...),"""Username already taken""",Checking for duplicates
+Server Script,db.users.append(user),Adding to customer database,Saving new user
+Server Script,"@app.get(""/api/products"")",Menu display board,Products listing endpoint
+Server Script,async def get_products(...),"""Show me cheap pizzas""",Filtering products
+Server Script,if category: products = [...],Filtering by food category,Category filter
+Server Script,if min_price: products = [...],Showing items above price,Minimum price filter
+Server Script,"@app.get(""/api/products/{product_id}"")",Specific menu item details,Get product by ID
+Server Script,"@app.post(""/api/orders"")",Order taking counter,Create order endpoint
+Client Script,import requests,Getting phone for food app,Importing HTTP library
+Client Script,class ModalAPIClient:,"""Foodie"" delivery app",Main client class
+Client Script,def health_check(self):,"""Is restaurant open?""",Health check method
