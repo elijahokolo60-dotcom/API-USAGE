@@ -1,0 +1,234 @@
+Line #,Code,What It Does,Simple Analogy
+1,"""Modal Python Application with Simulated API...""",Module docstring - describes the application,Book cover/title page
+2,Requirements: pip install modal pandas,Specifies required packages,Shopping list of ingredients
+3,""""",Ends the docstring""",Closes the book cover,
+4,,Visual separation,Blank line for readability
+5,import modal,Imports the Modal SDK library,Getting the toolbox
+6,import pandas as pd,Imports pandas for data manipulation,Getting a spreadsheet program
+7,from datetime import datetime,Imports datetime for timestamps,Getting a calendar/clock
+8,import json,Imports JSON module for data serialization,Getting a translator for data format
+9,"from typing import Dict, List, Optional",Imports type hints,Getting labels for boxes
+10,from pydantic import BaseModel,Imports Pydantic for data validation,Getting a form validator
+11,import random,Imports random for generating sample data,Getting dice for random numbers
+12,,Visual separation,Blank line
+13,# Define the modal app,Comment explaining next line,Signpost
+14,app = modal.App('sample-data-api'),Creates Modal application instance,Building a factory
+15,,Visual separation,Blank line
+16,# Define a shared image with dependencies,Comment explaining next line,Signpost
+17,image = modal.Image.debian_slim().pip_install(...),Creates Docker image with Python packages,Setting up a kitchen with tools
+18,,Visual separation,Blank line
+19,# Shared in-memory storage (simulated database),Comment,Signpost
+20,class DataStore:,Defines DB simulation,Blueprint for a filing cabinet
+,,,
+Line #,Code,What It Does,Simple Analogy
+1,"""""""Modal Python Application with Simulated API...",Module docstring - describes the application,Book cover/title page
+2,Requirements: pip install modal pandas,Specifies required packages,Shopping list of ingredients
+3,"""""""",Ends the docstring,Closes the book cover
+4,(empty line),Visual separation,Blank line for readability
+5,import modal,Imports the Modal SDK library,Getting the toolbox
+6,import pandas as pd,Imports pandas for data manipulation,Getting a spreadsheet program
+7,from datetime import datetime,Imports datetime for timestamps,Getting a calendar/clock
+8,import json,Imports JSON module for data serialization,Getting a translator for data format
+9,"from typing import Dict, List, Optional",Imports type hints,Getting labels for boxes
+10,from pydantic import BaseModel,Imports Pydantic for data validation,Getting a form validator
+11,import random,Imports random for generating sample data,Getting dice for random numbers
+12,(empty line),Visual separation,Blank line
+13,# Define the modal app,Comment explaining next line,Signpost
+14,"app = modal.App(""sample-data-api"")",Creates Modal application instance,Building a factory
+15,(empty line),Visual separation,Blank line
+16,# Define a shared image with dependencies,Comment explaining next line,Signpost
+17,image = modal.Image.debian_slim().pip_install(...),Creates Docker image with Python packages,Setting up a kitchen with tools
+18,(empty line),Visual separation,Blank line
+19,# Shared in-memory storage (simulated database),Comment explaining next section,Signpost
+20,class DataStore:,Defines database simulation class,Blueprint for a filing cabinet
+21,"""""""Simulated database for demonstration""""""",Class docstring,Label on the filing cabinet
+22,_instance = None,Class variable for singleton pattern,Empty space reserved for the one filing cabinet
+23,(empty line),Visual separation,Blank line
+24,def __init__(self):,Constructor method,Building the actual filing cabinet
+25,self.users = [,Initializes users list,First drawer in the cabinet
+26-28,User dictionaries,Sample user data,Sample employee records
+29,],Closes users list,Closes the first drawer
+30,(empty line),Visual separation,Blank line
+31,self.products = [,Initializes products list,Second drawer in the cabinet
+32-35,Product dictionaries,Sample product data,Sample inventory items
+36,],Closes products list,Closes the second drawer
+37,(empty line),Visual separation,Blank line
+38,self.orders = [],Initializes empty orders list,Empty third drawer
+39,(empty line),Visual separation,Blank line
+40,@classmethod,Decorator for class method,"""This works on the blueprint itself"" label"
+41,def get_instance(cls):,Singleton pattern getter method,"""Get the one filing cabinet"" instruction"
+42,if cls._instance is None:,Checks if instance exists,"""Is there already a filing cabinet?"""
+43,cls._instance = DataStore(),Creates new instance if none exists,"""Build a new filing cabinet"""
+44,return cls._instance,Returns the single instance,"""Give them the filing cabinet"""
+45,(empty line),Visual separation,Blank line
+46,# Pydantic models for API validation,Comment explaining next section,Signpost
+47,class UserCreate(BaseModel):,Defines user creation data model,User registration form template
+48,name: str,Requires name field (string),"""Name"" field on the form"
+49,email: str,Requires email field (string),"""Email"" field on the form"
+50,age: int,Requires age field (integer),"""Age"" field on the form"
+51,(empty line),Visual separation,Blank line
+52,class ProductCreate(BaseModel):,Defines product creation data model,Product listing form template
+53-56,Product field definitions,Specifies product data structure,Product form fields
+57,(empty line),Visual separation,Blank line
+58,class OrderCreate(BaseModel):,Defines order creation data model,Order form template
+59-61,Order field definitions,Specifies order data structure,Order form fields
+62,(empty line),Visual separation,Blank line
+63,# FastAPI app for the API,Comment explaining next section,Signpost
+64,@app.function(image=image),Decorator to make function deployable on Modal,"""Make this deployable"" sticker"
+65,@modal.asgi_app(),Decorator to serve as ASGI web app,"""This is a web server"" label"
+66,def fastapi_app():,Main API application function,Building the restaurant (API)
+67,from fastapi import FastAPI...,Imports FastAPI components,Getting restaurant equipment
+68,from fastapi.middleware.cors import CORSMiddleware,Imports CORS middleware,Getting security gates for cross-origin
+69,import uvicorn,Imports ASGI server,Getting the restaurant's kitchen engine
+70,(empty line),Visual separation,Blank line
+71,app = FastAPI(,Creates FastAPI application instance,Opening the restaurant
+72-75,API metadata,"Sets API title, description, version",Restaurant signboard/menu cover
+76,),Closes FastAPI constructor,Closes restaurant setup
+77,(empty line),Visual separation,Blank line
+78,# Add CORS middleware,Comment explaining next line,Signpost
+79-85,CORS configuration,Sets up Cross-Origin Resource Sharing,Setting up security gates
+86,(empty line),Visual separation,Blank line
+87,# Get the data store instance,Comment explaining next line,Signpost
+88,db = DataStore.get_instance(),Gets database instance,Getting the filing cabinet
+89,(empty line),Visual separation,Blank line
+90,# Root endpoint,Comment explaining next function,Signpost
+91,"@app.get(""/"")",Decorator for GET endpoint at root,Restaurant front door
+92,async def root():,Root endpoint function,Restaurant greeter/host
+93,return {,Returns API information,Hands out restaurant brochure
+94-99,API info dictionary,Basic API metadata and endpoint list,Brochure contents
+100,(empty line),Visual separation,Blank line
+101,# Health check,Comment explaining next function,Signpost
+102,"@app.get(""/health"")",Decorator for health endpoint,"Restaurant ""Open"" sign"
+103,async def health():,Health check function,Restaurant manager checking everything's ok
+104-108,Health status response,Returns service status,"""We're open and ready!"" message"
+109,(empty line),Visual separation,Blank line
+110,# Get all users,Comment explaining next function,Signpost
+111,"@app.get(""/users"")",Decorator for users endpoint,Restaurant customer list station
+112-114,Function signature with query params,Defines endpoint with optional filters,"""Show me customers with these filters"""
+115,users = db.users,Gets all users from database,Gets customer list from filing cabinet
+116,(empty line),Visual separation,Blank line
+117,# Apply filters if provided,Comment explaining filter logic,Signpost
+118-127,Filtering logic,Applies age and search filters to users,Sorting/filtering customer list
+128-133,Response with filtered users,Returns filtered results with metadata,"""Here are your filtered customers"""
+134,(empty line),Visual separation,Blank line
+135,# Get user by ID,Comment explaining next function,Signpost
+136,"@app.get(""/users/{user_id}"")",Decorator for user-by-ID endpoint,"""Show me customer #X"" station"
+137,async def get_user(user_id: int):,Function to get specific user,Looking up a specific customer
+138-140,User lookup loop,Searches for user by ID,Searching through customer files
+141,raise HTTPException(...),Raises error if user not found,"""Customer not found"" error message"
+142,(empty line),Visual separation,Blank line
+143,# Create a new user,Comment explaining next function,Signpost
+144,"@app.post(""/users"")",Decorator for user creation endpoint,Customer registration desk
+145,async def create_user(user: UserCreate):,Function to create new user,Registering a new customer
+146,"new_id = max([u[""id""]...",Calculates next user ID,Assigning next customer number
+147-152,New user creation,Creates user dictionary with metadata,Creating customer record
+153,db.users.append(new_user),Adds user to database,Files new customer record
+154-157,Success response,Returns confirmation and user data,"""Customer registered successfully"" receipt"
+158,(empty line),Visual separation,Blank line
+159,# Get all products,Comment explaining next function,Signpost
+160,"@app.get(""/products"")",Decorator for products endpoint,Restaurant menu display
+161-163,Function with query params,Defines product filtering options,"""Show me menu items with filters"""
+164-175,Product filtering logic,"Filters products by category, price, stock",Filtering menu items
+176-182,Filtered products response,Returns filtered products with metadata,"""Here's your filtered menu"""
+183,(empty line),Visual separation,Blank line
+184,# Get product by ID,Comment explaining next function,Signpost
+185,"@app.get(""/products/{product_id}"")",Decorator for product-by-ID endpoint,"""Show me menu item #X"" station"
+186-191,Product lookup logic,Finds and returns specific product,Looking up specific menu item
+192,(empty line),Visual separation,Blank line
+193,# Create an order,Comment explaining next function,Signpost
+194,"@app.post(""/orders"")",Decorator for order creation endpoint,Restaurant ordering counter
+195,async def create_order(order: OrderCreate):,Function to create new order,Taking a customer order
+196,# Check if user exists,Comment explaining validation,Signpost
+197-199,User validation,Verifies user exists,Checking customer is registered
+200,# Check if product exists...,Comment explaining validation,Signpost
+201-210,Product and stock validation,Verifies product exists and has stock,Checking menu item is available
+211,# Update stock,Comment explaining next line,Signpost
+212,"product[""stock""] -= order.quantity",Reduces product stock,Updating inventory count
+213,(empty line),Visual separation,Blank line
+214,# Create order,Comment explaining next section,Signpost
+215-225,Order creation,Builds order dictionary with details,Writing up the order ticket
+226,db.orders.append(new_order),Saves order to database,Files the order record
+227-237,Order confirmation,Returns success message and receipt,Giving customer order receipt
+238,(empty line),Visual separation,Blank line
+239,# Get all orders,Comment explaining next function,Signpost
+240,"@app.get(""/orders"")",Decorator for orders endpoint,Restaurant orders display
+241-245,Orders retrieval,Returns all orders with count,"""Here are all recent orders"""
+246,(empty line),Visual separation,Blank line
+247,# Analytics endpoint,Comment explaining next function,Signpost
+248,"@app.get(""/analytics"")",Decorator for analytics endpoint,Restaurant business report station
+249,async def get_analytics():,Analytics function,Restaurant manager running reports
+250-253,Basic counts,"Calculates totals for users, products, orders","Counting customers, menu items, orders"
+254,(empty line),Visual separation,Blank line
+255,# Calculate total revenue,Comment explaining next line,Signpost
+256,total_revenue = sum(...),Sums all order totals,Adding up all order amounts
+257,(empty line),Visual separation,Blank line
+258,# Get average age of users,Comment explaining next line,Signpost
+259,avg_age = sum(...) / total_users...,Calculates average user age,Finding average customer age
+260,(empty line),Visual separation,Blank line
+261,# Get stock summary,Comment explaining next line,Signpost
+262,low_stock = [p for p in...,Finds products with low stock,Identifying items running low
+263,(empty line),Visual separation,Blank line
+264,# Get popular products,Comment explaining next section,Signpost
+265-271,Product sales calculation,Calculates total sales per product,Counting how many times each item was ordered
+272-280,Popular products identification,Finds top 3 selling products,Identifying best-selling menu items
+281-295,Analytics response,Returns comprehensive business insights,Business report document
+296,(empty line),Visual separation,Blank line
+297,# Generate sample data,Comment explaining next function,Signpost
+298,"@app.post(""/generate-sample-data"")",Decorator for sample data endpoint,"""Add more sample customers"" button"
+299,async def generate_sample_data(count: int = 5):,Function to create test data,Generating fake customer data
+300,"""""""Generate additional sample data...",Function docstring,Explanation of what it does
+301,"first_names = [""Emma"", ""David""...",List of sample first names,Pool of first names to choose from
+302,"last_names = [""Wilson"", ""Taylor""...",List of sample last names,Pool of last names to choose from
+303,(empty line),Visual separation,Blank line
+304,new_users = [],Initializes list for new users,Empty basket for new customers
+305-314,User generation loop,Creates random users,Generating fake customer records
+315-321,Success response,Returns creation summary,"""Generated X new customers"" report"
+322,(empty line),Visual separation,Blank line
+323,return app,Returns FastAPI application,Hands over the restaurant to Modal
+324,(empty line),Visual separation,Blank line
+325,# Scheduled function example,Comment explaining next function,Signpost
+326,"@app.function(image=image, schedule=modal.Cron(""0 9 * * *""))",Decorator for scheduled task,"""Run this daily at 9 AM"" alarm clock"
+327,def daily_report():,Scheduled report function,Daily business report generator
+328,"""""""Daily scheduled task to generate reports""""""",Function docstring,Explanation of scheduled task
+329-331,Imports for email functionality,Imports email modules (unused in demo),Getting letter-writing tools
+332,(empty line),Visual separation,Blank line
+333,db = DataStore.get_instance(),Gets database instance,Getting the filing cabinet
+334,(empty line),Visual separation,Blank line
+335,# Generate report,Comment explaining next section,Signpost
+336-345,Report generation,Creates daily business report,Compiling daily business stats
+346,(empty line),Visual separation,Blank line
+347,# Save report (in a real app...),Comment explaining limitations,Signpost
+348-353,Report printing,Prints report to console (demo only),Showing daily stats on screen
+354,(empty line),Visual separation,Blank line
+355,"# In production, you might send an email...",Comment about production use,Signpost
+356-358,Return statement,Returns the generated report,Returns the daily report
+359,(empty line),Visual separation,Blank line
+360,# CLI function for testing,Comment explaining next function,Signpost
+361,@app.function(image=image),Decorator for CLI function,"""This can be run from command line"" label"
+362,def test_api():,Test function,Restaurant test run
+363,"""""""Test the API endpoints locally""""""",Function docstring,Explanation of test function
+364-366,Imports for testing,Imports requests and time modules,Getting testing tools
+367,(empty line),Visual separation,Blank line
+368,"# In Modal, we'd use the actual endpoint...",Comment explaining simulation,Signpost
+369,db = DataStore.get_instance(),Gets database instance,Getting the filing cabinet
+370,(empty line),Visual separation,Blank line
+371-373,Test startup messages,Prints test beginning info,"""Starting restaurant test..."" announcement"
+374,(empty line),Visual separation,Blank line
+375,# Simulate creating a new user,Comment explaining test step,Signpost
+376-382,User creation test,Creates a test user,Registering a test customer
+383,(empty line),Visual separation,Blank line
+384,# Simulate analytics,Comment explaining test step,Signpost
+385-392,Analytics test,Runs analytics and prints results,Running business report test
+393-397,Test results summary,Returns test results as dictionary,Test completion report
+398,(empty line),Visual separation,Blank line
+399,# Local development entry point,Comment explaining next section,Signpost
+400,"if __name__ == ""__main__"":",Main execution guard,"""Run this when file is executed directly"""
+401-407,Application description,Prints detailed app information,Restaurant grand opening announcement
+408,(empty line),Visual separation,Blank line
+409-420,Endpoints documentation,Lists all available API endpoints,Restaurant menu display
+421,(empty line),Visual separation,Blank line
+422-423,Deployment instructions,How to deploy to Modal,"""How to open your restaurant"" instructions"
+424,(empty line),Visual separation,Blank line
+425-426,Scheduled task info,Explains the daily report,"""Daily cleaning schedule"" notice"
+427,(empty line),Visual separation,Blank line
+428-429,Test instructions,How to run the test function,"""How to do a test run"" instructions"
